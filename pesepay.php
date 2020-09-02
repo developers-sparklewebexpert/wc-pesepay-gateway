@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name: Pesepay Payment Gateway
- * Plugin URI: http://yanaya.staging.co.zw
+ * Plugin URI: https://developers-india.com
  * Description: Pesepay Payment Gateway for woocommerce.
  * Author: Developers India Team
  * Author URI: https://developers-india.com/
  * Version: 1.0.0
  * Text Domain: pesepay
  * Domain Path: /languages/
- * License: GNU General Public License v3.0
- * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * License: GNU General Public License v2.0
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  *
  * @package   WC_Gateway_Pesepay
  * @author    Raj Kumar Singh
