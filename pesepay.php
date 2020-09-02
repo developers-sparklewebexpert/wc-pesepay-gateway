@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name: Pesepay Payment Gateway
- * Plugin URI: https://developers-india.com
+ * Plugin URI: http://yanaya.staging.co.zw
  * Description: Pesepay Payment Gateway for woocommerce.
  * Author: Developers India Team
  * Author URI: https://developers-india.com/
  * Version: 1.0.0
  * Text Domain: pesepay
  * Domain Path: /languages/
- * License: GNU General Public License v2.0
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * License: GNU General Public License v3.0
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  *
  * @package   WC_Gateway_Pesepay
  * @author    Raj Kumar Singh
@@ -316,6 +316,7 @@ function wc_pesepay_gateway_init() {
 						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
 						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
 						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
 		    }
 		    elseif(isset($respnseJson['transactionStatus']) && $respnseJson['transactionStatus']=='CANCELLED'){
 		        $order->payment_complete( $oreder_meta );
@@ -333,13 +334,34 @@ function wc_pesepay_gateway_init() {
 						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
 						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
 						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
+		         
+		     }
+		     elseif(isset($respnseJson['transactionStatus']) && ($respnseJson['transactionStatus']=='FAILED'|| $respnseJson['transactionStatus']=='TIME_OUT')){
+		        $order->payment_complete( $oreder_meta );
+				$this->log( 'IPN Payment Update: Order Marked Failed', 'error' );
+				$this->log( 'IPN Payment Update: '.$respnseJson['transactionStatusDescription'], 'error' );
+		         $amountTotal=$respnseJson['amountDetails']['currencyCode'].' '.$respnseJson['amountDetails']['totalTransactionAmount'];
+		         $application_id=$respnseJson['applicationId'];
+		         $txnID=$respnseJson['referenceNumber'];
+		         $amountDetails=$respnseJson['amountDetails'];
+		         $order->add_order_note( $respnseJson['transactionStatusDescription'] );
+		         $order->add_order_note( sprintf( __( 'Payment of %1$s could not be captured - Application ID: %2$s, Refrence Number : %3$s', 'pesepay' ), $amountTotal, $application_id, $txnID ) );
+		          $order->update_status( 'failed',__('Order Failed Successfully','pesepay'));
+				 
+						update_post_meta( $order->get_id(), '_payment_status', $respnseJson['transactionStatus'] );
+						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
+						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
+						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
 		         
 		     }
 		    else{
 		    $order->add_order_note( $respnseJson['transactionStatusDescription'] );
 			$this->log( 'IPN Payment Update: '.$respnseJson['transactionStatusDescription'], 'error'  );
 			//$order->payment_complete( $oreder_meta );
-			$order->update_status( 'cancelled',__('Order Cancelled Successfully','pesepay'));
+			$order->update_status( 'failed',__('Order Failed.','pesepay'));
+			update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
 		    }
 		    $order->save();
 		    WC()->cart->empty_cart();
@@ -400,6 +422,7 @@ function wc_pesepay_gateway_init() {
 						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
 						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
 						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
 		    }
 		     elseif(isset($respnseJson['transactionStatus']) && $respnseJson['transactionStatus']=='CANCELLED'){
 		         $order->payment_complete( $oreder_meta );
@@ -416,13 +439,33 @@ function wc_pesepay_gateway_init() {
 						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
 						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
 						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
+		         
+		     }
+		     elseif(isset($respnseJson['transactionStatus']) && ($respnseJson['transactionStatus']=='FAILED'|| $respnseJson['transactionStatus']=='TIME_OUT')){
+		        $order->payment_complete( $oreder_meta );
+				$this->log( 'IPN Payment Update: Order Marked Failed', 'error' );
+				$this->log( 'IPN Payment Update: '.$respnseJson['transactionStatusDescription'], 'error' );
+		         $amountTotal=$respnseJson['amountDetails']['currencyCode'].' '.$respnseJson['amountDetails']['totalTransactionAmount'];
+		         $application_id=$respnseJson['applicationId'];
+		         $txnID=$respnseJson['referenceNumber'];
+		         $amountDetails=$respnseJson['amountDetails'];
+		         $order->add_order_note( $respnseJson['transactionStatusDescription'] );
+		         $order->add_order_note( sprintf( __( 'Payment of %1$s could not be captured - Application ID: %2$s, Refrence Number : %3$s', 'pesepay' ), $amountTotal, $application_id, $txnID ) );
+		          $order->update_status( 'failed',__('Order Failed Successfully','pesepay'));
+				 
+						update_post_meta( $order->get_id(), '_payment_status', $respnseJson['transactionStatus'] );
+						update_post_meta( $order->get_id(), '_payment_paid_time', $respnseJson['dateOfTransaction'] );
+						update_post_meta( $order->get_id(), '_transaction_id', $txnID);
+						update_post_meta( $order->get_id(), '_amount_details', $amountDetails);
+						update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
 		         
 		     }
 		    else{
 		    $order->add_order_note( $respnseJson['transactionStatusDescription'] );
 			$this->log( 'Payment Update: '.$respnseJson['transactionStatusDescription'], 'error' );
-			//$order->payment_complete( $oreder_meta );
-			$order->update_status( 'cancelled',__('Order Cancelled.','pesepay'));
+			update_post_meta( $order->get_id(), '_transaction_status_message', $respnseJson['transactionStatusDescription']);
+			$order->update_status( 'cancelled',__('Order Failed.','pesepay'));
 		    }
 		    $order->save();
 		    WC()->cart->empty_cart();
@@ -469,14 +512,17 @@ function wc_pesepay_gateway_init() {
          if ( !$order_id ){return;}
         $order = new WC_Order( $order_id );
          $ref = $order->get_meta( 'referenceNumber', true );
+         $status_message = $order->get_meta( '_transaction_status_message', true );
+        
         //echo $order->get_status();
         if ( $order && $this->id === $order->get_payment_method() ) {
             if ( 'completed' == $order->get_status()) {
 			return __( 'Thank you for your payment. Your transaction has been completed, and a receipt for your purchase has been emailed to you.', 'pesepay' );
             }
             elseif('cancelled' == $order->get_status()){
-                return __('Your Order has been cancelled. Your Payment Reference Number is:'.$ref,'pesepay');
+                return '<span class="bg-danger text-white danger d-block p-2">'.$status_message.__('. Your Payment Reference Number is : '.$ref,'pesepay').'</span>';
             }
+           
             else{return $text;}
 		}
 		else{
